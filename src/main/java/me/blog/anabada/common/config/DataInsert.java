@@ -39,9 +39,9 @@ import me.blog.anabada.entities.Post;
 import me.blog.anabada.entities.Product;
 import me.blog.anabada.service.impl.ProductService;
 
-@Profile("!test")
+//@Profile("!test")
 @RequiredArgsConstructor
-@Component
+//@Component
 @Order(0)
 public class DataInsert implements ApplicationRunner {
 
