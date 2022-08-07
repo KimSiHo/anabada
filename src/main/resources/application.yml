@@ -1,1 +1,9 @@
 app.host: test
+
+spring:
+  profiles:
+    group:
+      prod:
+        - prod
+        - fs-local
+        - credentials

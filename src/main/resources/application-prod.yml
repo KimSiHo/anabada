@@ -2,4 +2,7 @@ cloud.aws.s3:
   bucket:
 
 
-spring.profiles.include: credentials
+spring:
+  config:
+    activate:
+      on-profile: prod

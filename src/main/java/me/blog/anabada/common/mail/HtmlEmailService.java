@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import me.blog.anabada.common.mail.dto.EmailMessage;
 
 @Slf4j
-@Profile("real")
-@Component
+//@Profile("prod")
+//@Component
 @RequiredArgsConstructor
 public class HtmlEmailService implements EmailService {
 
