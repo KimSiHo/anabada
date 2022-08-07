@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
 #  push:
 #    branches: [ master ]
+  push:
+    branches: [ feature/* ]
 
 env:
   S3_BUCKET_NAME: anabada-prod-web-build
