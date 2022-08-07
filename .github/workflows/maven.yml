@@ -5,10 +5,12 @@ on:
   workflow_dispatch:
 #  push:
 #    branches: [ master ]
+  push:
+    branches: [ feature/* ]
 
 env:
-  S3_BUCKET_NAME: blog_prod_build
-  PROJECT_NAME: blog
+  S3_BUCKET_NAME: anabada-prod-web-build
+  PROJECT_NAME: anabada-web
 
 jobs:
   build:
@@ -22,16 +24,6 @@ jobs:
       with:
         java-version: 11
         
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-      
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.CR_PAT }}
-        
     - name: Decrypt Services
       run: gpg --quiet --batch --yes --always-trust --decrypt --passphrase="$GPG_SECRET" --output src/main/resources/application-credentials.yml src/main/resources/application-credentials.yml.gpg
       env:
@@ -43,15 +35,6 @@ jobs:
     - name: Build with Maven
       run: mvn clean package
       
-    - name: Docker Img Build and Push
-      uses: docker/build-push-action@v2
-      id: docker_build
-      with:
-        context: .
-        file: Dockerfile
-        push: true
-        tags: ghcr.io/kimsiho/blog:latest
-
     - name: Make zip file 
       run: zip -r ./$GITHUB_SHA.zip . 
       shell: bash
@@ -65,6 +48,3 @@ jobs:
         
     - name: Upload to S3 
       run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
-
-    - name: Code Deploy 
-      run: aws deploy create-deployment --application-name ananbada-web-prod-ec2-codeDeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ap-northeast-2-anabada-web-ec2-prod --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
