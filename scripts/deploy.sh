@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REPOSITORY=/home/ec2-user/app
-PROJECT_NAME=bbs
+PROJECT_NAME=anabada
 
 echo "> Build 파일 복사"
 ehco " "
@@ -37,6 +37,6 @@ echo " "
 echo "> $JAR_NAME 실행"
 echo "> 관리자 권학 획득"
 sudo -s <<EOF
-nohup java -Dspring.profiles.active=real -jar $REPOSITORY/$JAR_NAME>$REPOSITORY/nohup.out 2>&1 &
+nohup java -Dspring.profiles.active=prod, fs-s3 -jar $REPOSITORY/$JAR_NAME>$REPOSITORY/nohup.out 2>&1 &
 EOF
 echo " "
