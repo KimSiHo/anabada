@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <title>김시호 - 블로그</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/custom/css/custom.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!--<script src="/node_modules/jdenticon/dist/jdenticon.min.js"></script>-->
+    <style>
+        .container {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<!-- --------------------------------------------------- 메뉴 --------------------------------------------------- -->
+
+<nav th:fragment="main-nav" class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <a class="navbar-brand" href="/" th:href="@{/}">
+        <img src="/images/logo_sm.png" width="30" height="30">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <form th:action="@{/search/product}" class="form-inline" method="get">
+                    <div class="form-group">
+                        <select class="form-control mr-sm-2" id="productKindCode" name="productKindCode">
+                            <option value="PKC001" selected>컴퓨터</option>
+                            <option value="PKC002">디지털</option>
+                            <option value="PKC003">가구</option>
+                            <option value="PKC004">옷</option>
+                            <option value="PKC005">신발</option>
+                        </select>
+                    </div>
+                    <input class="form-control mr-sm-2" type="search" name="keyword" placeholder="중고상품 찾기"/>
+                    <button class="btn btn-success" type="submit">검색</button>
+                </form>
+            </li>
+        </ul>
+
+        <ul class="navbar-nav justify-content-end">
+            <li class="nav-item" sec:authorize="!isAuthenticated()">
+                <a class="nav-link" th:href="@{/login}">로그인</a>
+            </li>
+            <li class="nav-item" sec:authorize="!isAuthenticated()">
+                <a class="nav-link" th:href="@{/account/sign-up}">가입</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link" th:href="@{/settings/notifications}">
+                    <i class="fa fa-bell-o" aria-hidden="true"><span class="badge badge-info" th:text="${#session.getAttribute('notiCount')}"> - </span></i>
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link btn btn-outline-primary" th:href="@{/product/upload}">
+                    <i class="fa fa-plus" aria-hidden="true"></i> My 상품
+                </a>
+            </li>
+            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                    <svg th:if="${#strings.isEmpty(account?.profileImage)}" th:data-jdenticon-value="${#authentication.name}"
+                         width="24" height="24" class="rounded border bg-light"></svg>
+                    <img th:if="${!#strings.isEmpty(account?.profileImage)}" th:src="${account.profileImage}"
+                         width="24" height="24" class="rounded border"/>
+                </a>
+                <div class="dropdown-menu dropdown-menu-sm-right">
+                    <h6 class="dropdown-header">
+                        <span sec:authentication="name">Username</span>
+                    </h6>
+                    <a class="dropdown-item" th:href="@{'/profile/' + ${#authentication.name}}">프로필</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" th:href="@{'/settings/profile'}">설정</a>
+                    <form class="form-inline my-2 my-lg-0" action="#" th:action="@{/logout}" method="post">
+                        <button class="dropdown-item" type="submit">로그아웃</button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div th:fragment="settings-menu (currentMenu)" class="list-group">
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'profile'}? active" href="#" th:href="@{/settings/profile}">프로필</a>
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'password'}? active" href="#" th:href="@{/settings/password}">패스워드</a>
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'notifications'}? active" href="#" th:href="@{/settings/notifications}">알림</a>
+    <a class="list-group-item list-group-item-action list-group-item-danger" th:classappend="${currentMenu == 'account'}? active" href="#" th:href="@{/settings/account}">계정</a>
+</div>
+
+<div th:fragment="main-menu (currentMenu)" class="list-group">
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'main'}? active" href="#" th:href="@{/}">홈</a>
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'new-product'}? active" href="#" th:href="@{/product/upload}">상품 등록</a>
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'bbs'}? active" href="#" th:href="@{/bbs/list}">게시판</a>
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'computer'}? active" href="#" th:href="@{/product/list/computer}">컴퓨터</a>
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'electronic'}? active" href="#" th:href="@{/product/list/electronic}">디지털 / 가전</a>
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'cloth'}? active" href="#" th:href="@{/product/list/cloth}">옷</a>
+    <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'shoes'}? active" href="#" th:href="@{/product/list/shoes}">신발</a>
+</div>
+
+<!-- --------------------------------------------------- 기타 --------------------------------------------------- -->
+
+<footer th:fragment="footer">
+    <div class="row justify-content-center">
+        <img class="mb-2" src="" alt="" width="100">
+        <small class="d-block mb-3 text-muted">&copy; 2022</small>
+    </div>
+</footer>
+
+<!-- --------------------------------------------------- 스크립트 --------------------------------------------------- -->
+
+<script type="application/javascript" th:fragment="form-validation">
+    (function () {
+        'use strict';
+
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+
+            // Loop over them and prevent submission
+            Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        }, false)
+    }())
+</script>
+
+<script type="application/javascript" th:fragment="bbs-ajax">
+    var main = {
+        init : function () {
+            var _this = this;
+            $('#btn-save').on('click', function () {
+                _this.save();
+            });
+
+            $('#btn-update').on('click', function () {
+                _this.update();
+            });
+
+            $('#btn-delete').on('click', function () {
+                _this.delete();
+            });
+        },
+        save : function () {
+            var data = {
+                title: $('#title').val(),
+                content: $('#content').val()
+            };
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            $.ajax({
+                type: 'POST',
+                url: '/bbs/create',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                //dataType: 'json',
+                contentType:'application/json; charset=utf-8',
+                data: JSON.stringify(data)
+            }).done(function() {
+                alert('글이 등록되었습니다.');
+                window.location.href = '/bbs';
+            }).fail(function (error) {
+                console.log(error);
+                alert(JSON.stringify(error));
+            });
+        },
+        update : function () {
+            var data = {
+                title: $('#title').val(),
+                content: $('#content').val()
+            };
+
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            var id = $('#id').val();
+
+            $.ajax({
+                type: 'PUT',
+                url: '/bbs/update/'+id,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                contentType:'application/json; charset=utf-8',
+                data: JSON.stringify(data)
+            }).done(function() {
+                console.log(data);
+                console.log(data.redirect);
+
+                alert('글이 수정되었습니다.');
+                window.location.href = '/bbs';
+            }).fail(function (error) {
+                alert(JSON.stringify(error));
+            });
+        },
+        delete : function () {
+            var id = $('#id').val();
+
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            $.ajax({
+                type: 'DELETE',
+                url: '/bbs/delete/'+id,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                dataType: 'json',
+                contentType:'application/json; charset=utf-8'
+            }).done(function() {
+                alert('글이 삭제되었습니다.');
+                window.location.href = '/bbs';
+            }).fail(function (error) {
+                alert(JSON.stringify(error));
+            });
+        }
+
+    };
+
+    main.init();
+</script>
+
+<!-- --------------------------------------------------- 스크립트 --------------------------------------------------- -->
+
+</html>

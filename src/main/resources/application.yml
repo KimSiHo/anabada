@@ -1,0 +1,15 @@
+app.host: test
+
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+  profiles:
+    group:
+      local:
+        - local
+        - fs-local
+      prod:
+        - prod
+        - fs-s3
+        - credentials

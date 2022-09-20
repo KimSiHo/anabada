@@ -1,0 +1,24 @@
+cloud.aws.s3:
+  bucket: anabada-project
+  dir: img/
+
+spring:
+  servlet.multipart:
+    max-file-size: 1MB
+    max-request-size: 10MB
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        default_batch_fetch_size: 100
+
+logging:
+  level:
+    me.blog.anabada: debug

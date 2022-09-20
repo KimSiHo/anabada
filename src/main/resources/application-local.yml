@@ -1,0 +1,18 @@
+server.port: 8080
+app.host: http://localhost:8080
+local.filesystem.uploadPath: C:\Users\김시호\Desktop\개인 폴더
+
+devtools.livereload.enabled: true
+thymeleaf.cache: false
+
+spring:
+  h2.console.enabled: true
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+
+logging:
+  level:
+    me.blog.anabada: debug

@@ -1,0 +1,63 @@
+name: Java CI with Maven
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  push:
+    branches: [ master, feature/* ]
+
+env:
+  S3_BUCKET_NAME: anabada-prod-web-build
+  PROJECT_NAME: anabada-web
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+        
+    - name: Decrypt Services
+      run: gpg --quiet --batch --yes --always-trust --decrypt --passphrase="$GPG_SECRET" --output src/main/resources/application-credentials.yml src/main/resources/application-credentials.yml.gpg
+      env:
+        GPG_SECRET: ${{ secrets.GPG_SECRET }}
+    
+    - name: Grant execute permission for mvnw
+      run: chmod +x mvnw      
+      
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+      
+    - name: Make zip file 
+      run: zip -r ./$GITHUB_SHA.zip . 
+      shell: bash
+
+    - name: Configure AWS credentials 
+      uses: aws-actions/configure-aws-credentials@v1 
+      with: 
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+        aws-region: ${{ secrets.AWS_REGION }} 
+        
+    - name: Upload to S3 
+      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
+      
+    - name: Code Deploy 
+      run: aws deploy create-deployment --application-name anabada-webservice --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name anabada-webservice-group --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+      
+    - name: action-slack
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        author_name: ANABADA-WEB
+        fields: repo,commit,message,author # action,eventName,ref,workflow,job,took 추가할 수 있음
+        mention: here
+        if_mention: failure,cancelled
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.

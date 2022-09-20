@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head"></head>
+<!--<meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>-->
+<!--<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>-->
+<body>
+    <div th:replace="fragments :: main-nav"></div>
+    <br /><br />
+
+    <div class="row">
+        <div class="col-2">
+            <div th:replace="fragments :: main-menu(currentMenu='bbs')"></div>
+        </div>
+
+        <div class="col-md-4">
+            <form class="needs-validation col-sm-6" action="#" th:action="@{/bbs/update/{id}(id=${post.id})}" method="post" novalidate>
+                <div class="form-group">
+                    <label for="title">글 번호</label>
+                    <input type="text" class="form-control" id="id" th:value="${post.id}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" class="form-control" id="title" name="title" th:value="${post.title}">
+                </div>
+                <div class="form-group">
+                    <label for="author"> 작성자 </label>
+                    <input type="text" class="form-control" id="author" th:value="${post.writer.nickname}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="content"> 내용 </label>
+                    <textarea class="form-control" id="content" name="content" th:text="${post.content}"></textarea>
+                </div>
+                <div class="form-group">
+                    <a class="btn btn-secondary" th:href="@{/bbs/list}">취소</a>
+                    <button class="btn btn-primary" id="btn-update" type="submit">수정 완료</button>
+                    <a  class="btn btn-danger" id="btn-delete" th:href="@{/bbs/delete/{id}(id=${post.id})}">삭제</a>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+
+    <!--<script th:replace="fragments :: bbs-ajax"></script>-->
+</body>
+</html>

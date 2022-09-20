@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head"></head>
+
+<body>
+    <div th:replace="fragments :: main-nav"></div>
+
+    <div class="row">
+        <div class="col-2">
+            <div th:replace="fragments :: main-menu(currentMenu='bbs')"></div>
+        </div>
+
+        <div class="col-md-8">
+            <br />
+            <a href="/bbs/create" role="button" class="btn btn-primary">글 등록</a>
+            <form class="form-inline" action="/bbs/list" style="display: inline-block">
+                <div class="form-group">
+                    <select class="form-control" id="size" name="size" onchange="this.form.submit()">
+                        <option th:attrappend="selected=${size == 10}?'selected'">10</option>
+                        <option th:attrappend="selected=${size == 15}?'selected'">15</option>
+                        <option th:attrappend="selected=${size == 20}?'selected'">20</option>
+                    </select>
+                </div>
+            </form>
+
+            <br /><br />
+
+            <table class="table table-horizontal table-hover">
+                <thead class="thead-strong">
+                    <tr>
+                        <th style="width: 10%">게시글번호</th>
+                        <th style="width: 50%">제목</th>
+                        <th style="width: 10%">작성자</th>
+                        <th style="width: 20%">작성일</th>
+                        <th style="width: 10%">조회</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                    <tr th:each="post:${postList}" style="height: 40px; overflow:auto;">
+                        <td th:text="${post.id}"> - </td>
+                        <td>
+                            <a href="#" th:href="@{/bbs/update/{id} (id=${post.id})}" th:text="*{post.title}"></a>
+                        </td>
+                        <td th:text="${post.writer.nickname}"> - </td>
+                        <td th:with="postDate=${post.createdDate.toLocalDate()}">
+                            <span th:if="${postDate.isEqual(#temporals.createToday())}"
+                                  th:text="${#temporals.format(post.createdDate, 'HH:mm')}"></span>
+                            <span th:unless="${postDate.isEqual(#temporals.createToday())}"
+                                  th:text="${#temporals.format(post.createdDate, 'yyyy.MM.dd')}"></span>
+                        </td>
+                        <td> - </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <nav style="text-align: center;">
+                <ul class="pagination"
+                    th:with="start=${T(java.lang.Math).floor(postList.number/10)*10 + 1},
+                             last=(${start + 9 < postList.totalPages ? start + 9 : postList.totalPages})">
+                    <li>
+                        <a th:href="@{/bbs(page=1, size=${size})}" aria-label="First">
+                            <span aria-hidden="true">First</span>
+                        </a>
+                    </li>
+
+                    <li th:class="${postList.first} ? 'disabled'">
+                        <a th:href="${postList.first} ? '#' :@{/bbs(page=${postList.number}, size=${size})}" aria-label="Previous">
+                            <span aria-hidden="true">&lt;</span>
+                        </a>
+                    </li>
+
+                    <li th:each="page: ${#numbers.sequence(start, last)}" th:class="${page == postList.number + 1} ? 'active'">
+                        <a th:text="${page}" th:href="@{/bbs(page=${page}, size=${size})}"></a>
+                    </li>
+
+                    <li th:class="${postList.last} ? 'disabled'">
+                        <a th:href="${postList.last} ? '#' : @{/bbs(page=${postList.number + 2}, size=${size})}" aria-label="Next">
+                            <span aria-hidden="true">&gt;</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a th:href="@{/bbs(page=${postList.totalPages}, size=${size})}" aria-label="Last">
+                            <span aria-hidden="true">Last</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+
+    <footer th:replace="fragments :: footer"></footer>
+</body>
+</html>

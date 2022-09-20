@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head"></head>
+<body>
+    <div th:replace="fragments :: main-nav"></div>
+
+    <div class="row">
+        <div class="col-2">
+            <div th:replace="fragments :: main-menu(currentMenu='new-product')"></div>
+        </div>
+
+        <div class="col-md-8">
+
+            <form class="border border-secondary p-3" action="#"
+                  th:action="@{/product/upload}" th:object="${productUploadForm}" method="post" enctype="multipart/form-data" novalidate>
+
+                <div class="form-group">
+                    <label for="productTitle">게시글 제목</label>
+                    <input id="productTitle" type="text" th:field="*{productTitle}" class="form-control"
+                           placeholder="게시글 제목을 작성해주세요" required>
+                    <small id="productTitleHelp" class="form-text text-muted">
+                        길지 않게 30자 이내로 입력하세요.
+                    </small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('productTitle')}" th:errors="*{productTitle}">
+                        8자 이상 30자 이하로 작성해 주세요.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">상품 소개</label>
+                    <textarea class="form-control" id="bio" placeholder="상품 소개를 부탁합니다." rows="5"
+                              th:field="*{bio}" required></textarea>
+                    <small id="bioHelp" class="form-text text-muted">
+                        길지 않게 50자 이내로 입력하세요.
+                    </small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}">
+                        조금 길어요.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="productKindCode">상품 종류 선택</label>
+                    <select id="productKindCode" th:field="*{productKindCode}" class="form-control"
+                            placeholder="상품 종류를 선택해주세요." required>
+                        <option th:value="${T(me.blog.anabada.common.enums.ProductKindCode).PKC001}">컴퓨터</option>
+                        <option th:value="${T(me.blog.anabada.common.enums.ProductKindCode).PKC002}">디지털/가전</option>
+                        <option th:value="${T(me.blog.anabada.common.enums.ProductKindCode).PKC003}">가구</option>
+                        <option th:value="${T(me.blog.anabada.common.enums.ProductKindCode).PKC004}">옷</option>
+                        <option th:value="${T(me.blog.anabada.common.enums.ProductKindCode).PKC005}">신발</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">상품 가격</label>
+                    <input id="price" type="text" th:field="*{price}" class="form-control"
+                           placeholder="상품 가격을 입력해 주세요." required>
+                    <small id="priceHelp" class="form-text text-muted">
+
+                    </small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}">
+                        값을 입력해 주세요.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="productImageFile">상품 이미지 업로드</label>
+                    <input type="file" th:field="*{productImageFiles}" id="productImageFile" multiple required>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('productImageFiles')}" th:errors="*{productImageFiles}">
+                        파일을 첨부해 주세요.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" type="submit">등록하기</button>
+                </div>
+            </form>
+
+            <!--<link href="https://cdn.jsdelivr.net/npm/froala-editor@3.1.0/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
+            <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/froala-editor@3.1.0/js/froala_editor.pkgd.min.js"></script>
+
+            <script>
+                var editor = new FroalaEditor('#example', {
+                    imageUploadURL: '/image', // 업로드 처리 end point
+                    imageUploadParam: 'file', // 파일 파라메터명
+                    imageUploadMethod: 'POST',
+                    imageAllowedTypes: ['jpeg', 'jpg', 'png'],
+                    imageMaxSize: 2 * 1024 * 1024 // 최대 이미지 사이즈 : 2메가
+                })
+            </script>-->
+        </div>
+    </div>
+</body>
+</html>
